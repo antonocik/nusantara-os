@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Nusantara Update — padanan garuda-update
+set -euo pipefail
+
+echo "=== NusantaraOS Update ==="
+echo "1) Buat snapshot BTRFS..."
+sudo timeshift --create --comments "Before nusantara-update $(date -Is)" || echo "Timeshift skip (tidak perlu sudo / btrfs)"
+
+echo "2) Update mirrorlist..."
+if command -v reflector &>/dev/null; then
+  sudo reflector --country Indonesia,Singapore,Japan,US,EU --protocol https --quick 5 --verbose --latest 5 --sort score --save /etc/pacman.d/mirrorlist
+else
+  echo "reflector tidak ada, skip"
+fi
+
+echo "3) Pacman full update..."
+sudo pacman -Syu
+
+echo "4) PAMAC AUR update..."
+if command -v pamac &>/dev/null; then pamac update -a || true; fi
+
+echo "5) Bersihkan cache..."
+sudo paccache -rk3 2>/dev/null || sudo pacman -Sc --noconfirm || true
+
+echo "Selesai. Reboot jika ada kernel/GLIBC update."

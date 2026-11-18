@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# CPU freq helper
+echo "NusantaraOS CPU freq setter"
+cat /sys/devices/system/cpu/cpufreq/policy0/scaling_driver 2>/dev/null || echo "driver tidak terbaca"

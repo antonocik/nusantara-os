@@ -1,0 +1,17 @@
+title-text: "Nusantara OS"
+title-font: "Inter Bold 20"
+title-color: "#f8fafc"
+desktop-color: "#0b0e14"
+desktop-image: ""
+message-text: "Loading Nusantara OS..."
+message-font: "Inter 12"
+message-color: "#94a3b8"
+boot_message: "Selamat datang di Nusantara OS - Merdeka!"
+terminal-font: "Inter 12"
+terminal-box: "#1e293b"
+terminal-border-color: "#e11d48"
+terminal-border-width: 2
+terminal-text-color: "#f8fafc"
+terminal-color: "#0b0e14"
++ label { top = 8%; left = 0%; width = 100%; align = center; text = "NUSANTARA OS"; color = "#f8fafc"; font = "Inter Bold 28" }
++ label { top = 16%; left = 0%; width = 100%; align = center; text = "Merah Putih • Garuda-Style"; color = "#e11d48"; font = "Inter 12" }

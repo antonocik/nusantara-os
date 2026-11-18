@@ -1,0 +1,12 @@
+# Build artifacts
+work/
+out/
+iso_build/
+*.iso
+*.img
+*.sfs
+
+# Cache
+__pycache__/
+*.pyc
+.DS_Store

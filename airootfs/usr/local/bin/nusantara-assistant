@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+# Nusantara Assistant — padanan Garuda Assistant / Garuda Setup Assistant
+# Menu terminal interaktif untuk setup pasca-install
+set -euo pipefail
+
+RED=$'\e[31m'; GREEN=$'\e[32m'; YELLOW=$'\e[33m'; RESET=$'\e[0m'
+
+banner() {
+  echo "============================================="
+  echo "  NusantaraOS Assistant — ala Garuda Assistant"
+  echo "============================================="
+}
+
+menu() {
+  clear
+  banner
+  echo "1) Update sistem + snapshot"
+  echo "2) Pasang driver NVIDIA / AMD / Intel"
+  echo "3) Pasang kernel (zen/lts/cachyos)"
+  echo "4) Setup gaming (Steam, Heroic, RetroArch)"
+  echo "5) Setup printer, bluetooth, wifi"
+  echo "6) Bersihkan cache & log"
+  echo "7) Restore snapshot Timeshift"
+  echo "0) Keluar"
+  read -rp "Pilih [0-7]: " choice
+}
+
+update() {
+  echo "=== Update + Snapshot ==="
+  sudo timeshift --create --comments "Before nusantara-update $(date -Is)" || true
+  sudo pacman -Syu
+  sudo pamac update -a || true
+}
+
+drivers() {
+  echo "=== Driver GPU ==="
+  lspci | grep -E "VGA|3D"
+  read -rp "Pilih driver [nvidia/amd/intel/all]: " d
+  case $d in
+    nvidia) sudo pacman -S --needed nvidia-dkms nvidia-utils nvidia-settings lib32-nvidia-utils opencl-nvidia ;;
+    amd) sudo pacman -S --needed mesa vulkan-radeon lib32-vulkan-radeon mesa-utils ;;
+    intel) sudo pacman -S --needed mesa intel-media-driver libva-intel-driver vulkan-intel lib32-vulkan-intel ;;
+    all) sudo pacman -S --needed mesa vulkan-radeon vulkan-intel nvidia-utils lib32-nvidia-utils ;;
+  esac
+}
+
+kernel() {
+  echo "Kernel tersedia: linux-zen (default), linux-lts, linux-cachyos"
+  read -rp "Install kernel extra [lts/cachyos/skip]: " k
+  case $k in
+    lts) sudo pacman -S --needed linux-lts linux-lts-headers ;;
+    cachyos) sudo pacman -S --needed linux-cachyos linux-cachyos-headers ;;
+    *) echo "skip" ;;
+  esac
+}
+
+gaming() {
+  echo "=== Gaming ==="
+  sudo pacman -S --needed steam lutris heroic-games-launcher-bin gamemode lib32-gamemode mangohud vkbasalt retroarch protontricks winetricks
+  sudo systemctl enable --now gamemode
+}
+
+printer() {
+  sudo systemctl enable --now cups bluetooth
+  sudo pacman -S --needed system-config-printer sane hplip
+  echo "Buka system-config-printer untuk tambah printer"
+}
+
+clean() {
+  sudo pacman -Sc --noconfirm
+  sudo paccache -rk0
+  sudo journalctl --vacuum-time=7d
+  sudo rm -rf ~/.cache/*
+}
+
+restore() {
+  sudo timeshift --list
+  read -rp "Snapshot number untuk restore: " n
+  sudo timeshift --restore --snapshot $n
+}
+
+while true; do
+  menu
+  case $choice in
+    1) update ;;
+    2) drivers ;;
+    3) kernel ;;
+    4) gaming ;;
+    5) printer ;;
+    6) clean ;;
+    7) restore ;;
+    0) echo "Bye."; exit 0 ;;
+    *) echo "Pilihan tidak valid"; sleep 1 ;;
+  esac
+  echo -e "${YELLOW}Tekan Enter untuk lanjut${RESET}"
+  read
+done

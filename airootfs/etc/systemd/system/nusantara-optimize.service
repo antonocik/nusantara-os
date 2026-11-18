@@ -1,0 +1,11 @@
+[Unit]
+Description=NusantaraOS Optimization (earlyoom, tuned, ananicy)
+After=network.target
+
+[Service]
+ExecStart=/usr/lib/systemd/systemd-oomd
+ExecStart=/usr/bin/ananicy-cpp
+ExecStart=/usr/lib/tuned/ppd/tuned-ppd
+
+[Install]
+WantedBy=multi-user.target

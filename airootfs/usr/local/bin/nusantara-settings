@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Nusantara Settings — padanan garuda-settings (power, wifi, printer, bluetooth)
+set -euo pipefail
+echo "Nusantara Settings (dummy wrapper)"
+sudo systemctl enable --now NetworkManager bluetooth cups || true
+sudo systemctl enable --now power-profiles-daemon tuned || true
+echo "Done. Buka system-config-printer / bluedevil untuk lanjut."

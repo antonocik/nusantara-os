@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Nusantara OS Logo">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0f1420"/>
+      <stop offset="0.55" stop-color="#121826"/>
+      <stop offset="1" stop-color="#35101e"/>
+    </linearGradient>
+    <linearGradient id="redGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fb7185"/>
+      <stop offset="0.35" stop-color="#f43f5e"/>
+      <stop offset="0.7" stop-color="#e11d48"/>
+      <stop offset="1" stop-color="#9f1239"/>
+    </linearGradient>
+    <linearGradient id="whiteGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e2e8f0"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.55">
+      <stop offset="0" stop-color="#e11d48" stop-opacity="0.32"/>
+      <stop offset="0.55" stop-color="#e11d48" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#e11d48" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect x="0" y="0" width="512" height="512" rx="96" fill="url(#bgGrad)" stroke="#e11d48" stroke-opacity="0.4" stroke-width="2"/>
+  <rect x="14" y="14" width="484" height="484" rx="84" fill="none" stroke="#f43f5e" stroke-opacity="0.18" stroke-width="1.5"/>
+
+  <!-- Glow behind emblem -->
+  <circle cx="256" cy="218" r="168" fill="url(#glow)"/>
+
+  <!-- Emblem group -->
+  <g filter="url(#shadow)">
+    <!-- Wings - 3 feathers each side (angular Garuda) -->
+    <!-- Left wing top -->
+    <path d="M 250 168 L 72 96 L 128 176 L 96 168 L 138 210 L 256 228 Z" fill="url(#redGrad)"/>
+    <!-- Left wing mid -->
+    <path d="M 250 204 L 58 166 L 124 232 L 96 232 L 148 266 L 256 268 Z" fill="url(#redGrad)" opacity="0.95"/>
+    <!-- Left wing low -->
+    <path d="M 250 238 L 88 240 L 152 284 L 126 292 L 192 314 L 256 300 Z" fill="url(#redGrad)" opacity="0.85"/>
+
+    <!-- Right wing top (mirror) -->
+    <path d="M 262 168 L 440 96 L 384 176 L 416 168 L 374 210 L 256 228 Z" fill="url(#redGrad)"/>
+    <!-- Right wing mid -->
+    <path d="M 262 204 L 454 166 L 388 232 L 416 232 L 364 266 L 256 268 Z" fill="url(#redGrad)" opacity="0.95"/>
+    <!-- Right wing low -->
+    <path d="M 262 238 L 424 240 L 360 284 L 386 292 L 320 314 L 256 300 Z" fill="url(#redGrad)" opacity="0.85"/>
+
+    <!-- Neck / body V -->
+    <path d="M 188 308 L 256 388 L 324 308 L 324 252 L 188 252 Z" fill="url(#whiteGrad)" opacity="0.96"/>
+
+    <!-- Body inner (red V inset) -->
+    <path d="M 208 286 L 256 346 L 304 286 L 304 262 L 208 262 Z" fill="url(#redGrad)"/>
+
+    <!-- Head -->
+    <path d="M 208 192 Q 208 158 256 146 Q 304 158 304 192 Q 304 216 256 228 Q 208 216 208 192 Z" fill="url(#whiteGrad)"/>
+
+    <!-- Crown / Crest (3 spikes Ganjar style) -->
+    <path d="M 210 168 L 200 122 L 228 148 L 232 104 L 256 142 L 280 104 L 284 148 L 312 122 L 302 168 Q 256 154 210 168 Z" fill="url(#redGrad)" stroke="#ffffff" stroke-opacity="0.35" stroke-width="1"/>
+
+    <!-- Eyes (serious Garuda) -->
+    <path d="M 224 186 L 246 190 L 226 196 Z" fill="#0b0e14"/>
+    <path d="M 288 186 L 266 190 L 286 196 Z" fill="#0b0e14"/>
+
+    <!-- Beak -->
+    <path d="M 236 210 L 256 244 L 276 210 Q 266 198 256 198 Q 246 198 236 210 Z" fill="url(#redGrad)" stroke="#9f1239" stroke-width="1.2"/>
+
+    <!-- Chest mark (Nusantara diamond) -->
+    <path d="M 256 282 L 272 306 L 256 330 L 240 306 Z" fill="#0b0e14"/>
+    <circle cx="256" cy="306" r="6" fill="#e11d48"/>
+  </g>
+
+  <!-- Nusantara islands dots (5) on arc -->
+  <g opacity="0.95">
+    <circle cx="150" cy="388" r="9" fill="#f8fafc"/>
+    <circle cx="200" cy="402" r="11" fill="#ffffff"/>
+    <circle cx="256" cy="408" r="13" fill="#f43f5e" stroke="#f8fafc" stroke-width="1.5"/>
+    <circle cx="312" cy="402" r="11" fill="#ffffff"/>
+    <circle cx="362" cy="388" r="9" fill="#f8fafc"/>
+    <!-- equator line -->
+    <path d="M 112 394 Q 256 430 400 394" stroke="#f43f5e" stroke-width="1.6" fill="none" stroke-linecap="round" opacity="0.55" stroke-dasharray="8 6"/>
+  </g>
+
+  <!-- Text -->
+  <text x="256" y="448" text-anchor="middle" font-family="Inter, Noto Sans, sans-serif" font-size="30" font-weight="800" letter-spacing="3.5" fill="#f8fafc">NUSANTARA OS</text>
+  <text x="256" y="472" text-anchor="middle" font-family="Inter, Noto Sans, sans-serif" font-size="12" font-weight="600" letter-spacing="3" fill="#fb7185">GARUDA-STYLE • ARCH • BTRFS • MERDEKA</text>
+</svg>
