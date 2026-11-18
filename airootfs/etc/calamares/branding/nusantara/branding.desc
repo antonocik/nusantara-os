@@ -1,0 +1,37 @@
+---
+componentName: nusantara
+
+strings:
+  productName: "Nusantara OS"
+  shortProductName: "Nusantara"
+  version: "2026.11"
+  shortVersion: "2026.11"
+  versionedName: "Nusantara OS 2026.11"
+  shortVersionedName: "Nusantara 2026.11"
+  bootloaderEntryName: "Nusantara OS"
+  productUrl: "https://github.com/antonocik/nusantara-os"
+  supportUrl: "https://github.com/antonocik/nusantara-os/issues"
+  knownIssuesUrl: "https://github.com/antonocik/nusantara-os/issues"
+  releaseNotesUrl: "https://github.com/antonocik/nusantara-os/releases"
+
+images:
+  productIcon: "nusantara-logo.png"
+  productLogo: "nusantara-logo.png"
+  productWelcome: "nusantara-logo.png"
+
+style:
+  SidebarBackground: "#0b0e14"
+  SidebarText: "#f8fafc"
+  SidebarTextCurrent: "#f8fafc"
+  SidebarBackgroundCurrent: "#e11d48"
+
+slideshow: "show.qml"
+slideshowAPI: 2
+
+welcomeStyleCalamares: false
+welcomeExpandingLogo: true
+windowExpanding: normal
+windowSize: 900px,600px
+windowPlacement: center
+sidebar: widget
+navigation: widget

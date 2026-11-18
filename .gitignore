@@ -2,10 +2,12 @@
 work/
 out/
 build-profile/
+localrepo/
 iso_build/
 *.iso
 *.img
 *.sfs
+*.pkg.tar.zst
 
 # Cache
 __pycache__/

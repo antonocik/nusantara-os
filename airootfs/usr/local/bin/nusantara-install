@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Nusantara OS — buka installer dari live session.
+# Pakai Calamares bila tersedia, kalau tidak jatuh ke archinstall (TUI).
+set -euo pipefail
+
+if command -v calamares >/dev/null 2>&1; then
+  if [[ $EUID -eq 0 ]]; then
+    exec calamares
+  fi
+  # sudo -E: live user punya NOPASSWD + SETENV, jadi DISPLAY ikut terbawa
+  exec sudo -E calamares
+fi
+
+if command -v archinstall >/dev/null 2>&1; then
+  exec konsole -e sudo archinstall
+fi
+
+notify-send "Nusantara OS" "Installer tidak ditemukan di ISO ini." 2>/dev/null || true
+echo "Installer tidak ditemukan di ISO ini." >&2
+exit 1

@@ -1,20 +1,25 @@
 # Nusantara OS — packages.x86_64
 # Paket dari repo resmi Arch (core/extra/multilib).
-# Satu paket per baris. Komentar dengan #.
-# Paket AUR opsional ada di packages.aur.x86_64 (tidak dipakai saat build ISO).
+# Paket AUR/Chaotic ada di packages.aur.x86_64 (opsional).
+# scripts/filter-packages.sh akan membuang nama yang tidak tersedia.
 
 # --- Base sistem ---
 base
 base-devel
 sudo
+shadow
 linux-zen
 linux-zen-headers
 linux-firmware
+amd-ucode
+intel-ucode
 systemd
 systemd-sysvcompat
 mkinitcpio
+mkinitcpio-archiso
 plymouth
 grub
+syslinux
 efibootmgr
 os-prober
 refind
@@ -27,8 +32,20 @@ snap-pac
 timeshift
 grub-btrfs
 arch-install-scripts
+archinstall
 reflector
 pacman-contrib
+cryptsetup
+lvm2
+e2fsprogs
+xfsprogs
+gptfdisk
+parted
+rsync
+unzip
+zip
+less
+nano
 
 # --- Desktop KDE Plasma ---
 plasma-meta
@@ -54,12 +71,10 @@ ffmpegthumbs
 ark
 filelight
 systemsettings
-kinfo
 kcalc
 kcolorchooser
 kolourpaint
 kompare
-kwrite
 yakuake
 kio-extras
 kio-admin
@@ -70,8 +85,11 @@ networkmanager
 network-manager-applet
 bluez
 bluez-utils
-rfkill
 openresolv
+wireless-regdb
+iw
+usbutils
+pciutils
 
 # --- Audio ---
 pipewire
@@ -81,12 +99,15 @@ pipewire-pulse
 wireplumber
 alsa-utils
 pavucontrol
+sof-firmware
 
 # --- Aplikasi ---
 firefox
 firefox-i18n-id
 libreoffice-still
 libreoffice-still-id
+libnotify
+kdialog
 vlc
 mpv
 gimp
@@ -109,6 +130,8 @@ fzf
 zoxide
 eza
 bat
+xdg-utils
+xdg-user-dirs
 
 # --- Gaming ---
 steam
@@ -127,6 +150,8 @@ mesa-utils
 retroarch
 libretro-core-info
 winetricks
+wine
+wine-mono
 
 # --- Printer & Scanner ---
 cups
@@ -136,6 +161,8 @@ sane
 hplip
 
 # --- Filesystem & utilitas ---
+squashfs-tools
+f2fs-tools
 udisks2
 udiskie
 gvfs
@@ -146,7 +173,6 @@ partitionmanager
 flatpak
 earlyoom
 tuned
-power-profiles-daemon
 thermald
 upower
 smartmontools
@@ -162,23 +188,10 @@ ttf-fira-sans
 ttf-liberation
 cantarell-fonts
 
-# --- Pengembangan ---
+# --- Pengembangan (ringan; toolchain besar dipasang lewat nusantara-assistant) ---
 cmake
-gcc
-clang
 python
 python-pip
+python-yaml
 nodejs
-npm
-go
-rust
 sqlite
-postgresql
-mariadb
-docker
-docker-compose
-kubectl
-ansible
-
-# --- Installer ---
-calamares

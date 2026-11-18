@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Install Nusantara OS
+Name[id]=Pasang Nusantara OS
+GenericName=System Installer
+Comment=Install Nusantara OS to this computer
+Comment[id]=Pasang Nusantara OS ke komputer ini
+Exec=nusantara-install
+Icon=calamares
+Terminal=false
+StartupNotify=true
+Categories=Qt;System;

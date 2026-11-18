@@ -12,12 +12,11 @@ buildmodes=('iso')
 work_dir="work"
 out_dir="out"
 
+# Nama bootmode modern (archiso >= 70). Mode *.mbr / *.eltorito lama sudah
+# deprecated dan hanya menghasilkan peringatan.
 bootmodes=(
-  'bios.syslinux.mbr'
-  'bios.syslinux.eltorito'
-  'uefi-ia32.systemd-boot.eltorito'
-  'uefi-x64.systemd-boot.eltorito'
-  'uefi-x64.systemd-boot.esp'
+  'bios.syslinux'
+  'uefi.systemd-boot'
 )
 
 arch="x86_64"
@@ -28,8 +27,10 @@ airootfs_image_tool_options=('-comp' 'zstd' '-Xcompression-level' '15' '-b' '1M'
 
 file_permissions=(
   ["/etc/sudoers.d/g_wheel"]="0:0:440"
+  ["/etc/sudoers.d/99-nusantara-live"]="0:0:440"
   ["/usr/local/bin/nusantara-assistant"]="0:0:755"
   ["/usr/local/bin/nusantara-update"]="0:0:755"
   ["/usr/local/bin/nusantara-settings"]="0:0:755"
   ["/usr/local/bin/nusantara-line-cpufreq"]="0:0:755"
+  ["/usr/local/bin/nusantara-install"]="0:0:755"
 )

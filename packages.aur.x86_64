@@ -1,9 +1,24 @@
-# Nusantara OS — paket AUR (OPSIONAL)
+# Nusantara OS — paket AUR / Chaotic-AUR (OPSIONAL)
 #
-# Tidak dipakai saat build ISO. Pasang setelah install dengan:
-#   yay -S --needed $(grep -v '^#' packages.aur.x86_64 | xargs)
+# Tidak dipakai saat build ISO default. Dua cara memakai:
 #
-# atau pilih manual.
+# 1. Build ISO dengan repo Chaotic-AUR + installer grafis:
+#      WITH_CHAOTIC=1 WITH_CALAMARES=1 sudo ./build.sh kde
+#    build.sh memasang keyring Chaotic, membangun Calamares dari AUR, lalu
+#    menambahkan paket di bawah yang tersedia ke daftar paket ISO.
+#
+# 2. Setelah sistem terpasang (AUR via yay/paru):
+#      yay -S --needed $(grep -v '^#' packages.aur.x86_64 | xargs)
+#
+# Catatan: nama di Chaotic-AUR kadang beda, mis. ananicy-cpp -> ananicy-cpp-git,
+# protontricks -> protontricks-git, pamac-aur -> pamac.
+
+# Installer grafis (tidak ada di repo resmi Arch)
+calamares
+
+# Manajer paket grafis ala Garuda
+pamac-aur
+octopi
 
 # Optimasi sistem
 ananicy-cpp
@@ -18,7 +33,5 @@ heroic-games-launcher-bin
 sweet-kde-theme-git
 candy-icons-git
 
-# Aplikasi
-pamac-aur
-octopi
+# Utilitas
 ventoy-bin

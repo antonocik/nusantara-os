@@ -16,17 +16,34 @@ on:
         default: kde
         type: choice
         options: [kde, xfce, gnome, sway]
+      calamares:
+        description: "Bangun Calamares dari AUR (installer grafis)"
+        required: true
+        default: "1"
+        type: choice
+        options: ["1", "0"]
+      chaotic:
+        description: "Aktifkan Chaotic-AUR (repo ala Garuda)"
+        required: true
+        default: "0"
+        type: choice
+        options: ["0", "1"]
   release:
     types: [published]
 
 permissions:
   contents: write
 
+env:
+  PROFILE: ${{ github.event.inputs.profile || 'kde' }}
+  WITH_CALAMARES: ${{ github.event.inputs.calamares || '1' }}
+  WITH_CHAOTIC: ${{ github.event.inputs.chaotic || '0' }}
+
 jobs:
   iso:
     name: Build ISO (${{ github.event.inputs.profile || 'kde' }})
     runs-on: ubuntu-latest
-    timeout-minutes: 300
+    timeout-minutes: 360
 
     steps:
       - uses: actions/checkout@v4
@@ -38,19 +55,21 @@ jobs:
           df -h /
 
       - name: Build di container Arch Linux
-        env:
-          PROFILE: ${{ github.event.inputs.profile || 'kde' }}
         run: |
           docker run --rm --privileged \
             -v "$PWD":/build -w /build \
             -e PROFILE="$PROFILE" \
+            -e WITH_CALAMARES="$WITH_CALAMARES" \
+            -e WITH_CHAOTIC="$WITH_CHAOTIC" \
             archlinux:latest bash -lc '
               set -euo pipefail
               echo "::group::Sinkron repo Arch"
               pacman -Syu --noconfirm --needed archlinux-keyring
-              pacman -S --noconfirm --needed archiso squashfs-tools base-devel git zstd
+              pacman -S --noconfirm --needed \
+                archiso squashfs-tools libisoburn mtools dosfstools \
+                base-devel git zstd curl
               echo "::endgroup::"
-              echo "::group::mkarchiso"
+              echo "::group::build.sh $PROFILE"
               ./build.sh "$PROFILE"
               echo "::endgroup::"
             '

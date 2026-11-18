@@ -1,33 +1,42 @@
 #!/usr/bin/env bash
 # Hapus paket yang tidak tersedia di repo aktif, supaya mkarchiso tidak gagal.
-# Usage: scripts/filter-packages.sh <file-paket> [file-output]
 #
-# Menulis ulang <file-paket> (in-place) minus paket yang tidak ditemukan,
-# dan mencetak ringkasan paket yang dibuang ke stderr.
+# Usage: scripts/filter-packages.sh <file-paket> [pacman.conf]
+#
+# Bila pacman.conf diberikan, pengecekan memakai konfigurasi repo tsb
+# (penting agar multilib, chaotic-aur, dan repo lokal ikut terhitung).
 
 set -euo pipefail
 
 FILE="${1:?paket: butuh path file packages.x86_64}"
-OUT="${2:-$FILE}"
+CONF="${2:-}"
 
 if ! command -v pacman >/dev/null 2>&1; then
   echo "[filter] pacman tidak ada, skip" >&2
   exit 0
 fi
 
-# pastikan database sinkron (butuh root)
-SUDO=""
-if [[ $EUID -ne 0 ]] && command -v sudo >/dev/null 2>&1; then
-  SUDO="sudo"
+PACMAN=(pacman)
+if [[ -n "$CONF" && -f "$CONF" ]]; then
+  PACMAN=(pacman --config "$CONF")
 fi
-$SUDO pacman -Sy --noconfirm >/dev/null 2>&1 || true
+
+if [[ $EUID -ne 0 ]]; then
+  if command -v sudo >/dev/null 2>&1; then
+    PACMAN=(sudo "${PACMAN[@]}")
+  else
+    echo "[filter] butuh root untuk pacman -Sy, skip" >&2
+    exit 0
+  fi
+fi
+
+"${PACMAN[@]}" -Sy --noconfirm >/dev/null 2>&1 || true
 
 tmp="$(mktemp)"
 removed=()
 kept=0
 
 while IFS= read -r line; do
-  # pertahankan komentar & baris kosong
   if [[ -z "${line// }" || "$line" == \#* ]]; then
     printf '%s\n' "$line" >> "$tmp"
     continue
@@ -36,7 +45,9 @@ while IFS= read -r line; do
   pkg="$(echo "$pkg" | xargs)"
   [[ -z "$pkg" ]] && continue
 
-  if pacman -Si "$pkg" >/dev/null 2>&1; then
+  # -Si = paket tunggal, -Sg = nama grup (mis. xfce4, gnome)
+  if "${PACMAN[@]}" -Si "$pkg" >/dev/null 2>&1 || \
+     "${PACMAN[@]}" -Sg "$pkg" >/dev/null 2>&1; then
     printf '%s\n' "$pkg" >> "$tmp"
     kept=$((kept + 1))
   else
@@ -44,7 +55,7 @@ while IFS= read -r line; do
   fi
 done < "$FILE"
 
-mv "$tmp" "$OUT"
+mv "$tmp" "$FILE"
 
 echo "[filter] tersedia: $kept paket" >&2
 if (( ${#removed[@]} )); then
