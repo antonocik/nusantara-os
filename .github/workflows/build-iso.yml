@@ -80,6 +80,31 @@ jobs:
               xorriso -indev "$ISO" -find /arch/boot/x86_64 -type f -exec lsdl
               xorriso -indev "$ISO" -find /arch/boot/syslinux -type f -exec lsdl
               echo "::endgroup::"
+
+              echo "::group::Verifikasi rootfs live"
+              xorriso -osirrox on -indev "$ISO" \
+                -extract /arch/x86_64/airootfs.sfs /tmp/airootfs.sfs
+              unsquashfs -l /tmp/airootfs.sfs > /tmp/sfs.txt
+              for f in \
+                etc/calamares/settings.conf \
+                etc/calamares/branding/nusantara/branding.desc \
+                etc/calamares/modules/shellprocess.conf \
+                etc/calamares/modules/unpackfs.conf \
+                etc/mkinitcpio.conf.d/archiso.conf \
+                etc/sddm.conf.d/99-nusantara-autologin.conf \
+                etc/sysusers.d/nusantara-live.conf \
+                etc/sudoers.d/99-nusantara-live \
+                etc/systemd/system/multi-user.target.wants/sddm.service \
+                usr/bin/calamares \
+                usr/bin/sddm \
+                usr/local/bin/nusantara-install \
+                usr/share/sddm/themes/nusantara/Main.qml \
+                home/nusantara/Desktop/nusantara-install.desktop ; do
+                grep -qx "squashfs-root/$f" /tmp/sfs.txt || { echo "HILANG: $f"; exit 1; }
+              done
+              echo "semua file kunci ada di rootfs live"
+              rm -f /tmp/airootfs.sfs /tmp/sfs.txt
+              echo "::endgroup::"
             '
 
       - name: Checksum & ukuran
