@@ -12,9 +12,9 @@ GitHub Actions (container Arch) atau lokal di Arch/Garuda.
 | Profil archiso (`profiledef.sh`) | ✅ bootmode modern `bios.syslinux` + `uefi.systemd-boot` |
 | Boot config | ✅ `syslinux/`, `efiboot/`, `grub/` — kernel `linux-zen` + placeholder archiso |
 | Initramfs live | ✅ `airootfs/etc/mkinitcpio.conf.d/archiso.conf` + `mkinitcpio-archiso` |
-| Daftar paket | ✅ 167 paket, semuanya terverifikasi ada di core/extra/multilib |
+| Daftar paket | ✅ 173 paket, semuanya terverifikasi ada di core/extra/multilib |
 | Filter paket | ✅ mendukung nama paket, grup (`xfce4`), multilib, repo lokal |
-| Build script | ✅ overlay profil, cek toolchain, Calamares (AUR), Chaotic-AUR opsional |
+| Build script | ✅ overlay profil, cek toolchain, Calamares (PKGBUILD lokal), Chaotic-AUR opsional |
 | CI | ✅ `.github/workflows/build-iso.yml` (input profil/calamares/chaotic) |
 | Calamares | ✅ 3.4 — 21 modul, branding `nusantara`, QML slideshow |
 | Live session | ✅ user `nusantara`, autologin SDDM, installer di desktop |
@@ -27,14 +27,15 @@ GitHub Actions (container Arch) atau lokal di Arch/Garuda.
 - `bash -n` untuk semua skrip: lolos
 - 23 file YAML Calamares + workflow: lolos parser YAML
 - 21 modul di `settings.conf` semuanya ada di sumber Calamares 3.4.2
-- 167 paket `packages.x86_64`: 167/167 ditemukan di DB core/extra/multilib
+- 173 paket `packages.x86_64`: 173/173 ditemukan di DB core/extra/multilib
+- Config Calamares: semua key cocok dengan schema 3.4 (kecuali `swapPartitionName` yang dibaca runtime)
 - Semua path di `file_permissions` ada di `airootfs/`
 - SVG logo: XML valid
 
 ## Belum diverifikasi (butuh host Arch / runner CI)
 
 - `mkarchiso` end-to-end (ukuran ISO final, waktu build)
-- Build Calamares dari AUR di container (durasi + modul python `localecfg`)
+- Build Calamares dari `packaging/calamares` di container (durasi + modul Python)
 - Boot ISO hasil build: syslinux/UEFI, Plymouth, SDDM autologin
 - Install Calamares sampai selesai, termasuk subvolume BTRFS + Snapper
 - Tema SDDM/Plymouth tampil benar di layar

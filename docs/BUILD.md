@@ -27,8 +27,8 @@ Urutan yang dilakukan `build.sh`:
    - `airootfs/`, `syslinux/`, `efiboot/`, `grub/`, `profiledef.sh`, `pacman.conf`
    - daftar paket dari `profiles/<varian>/packages.x86_64` bila ada, kalau tidak `packages.x86_64`
    - overlay `profiles/<varian>/airootfs/` bila ada
-3. **Calamares** (default aktif): `scripts/build-calamares.sh` membangun paket dari AUR,
-   menaruhnya di `localrepo/`, lalu menambahkan repo `[nusantara-local]` ke pacman.conf.
+3. **Calamares** (default aktif): `scripts/build-calamares.sh` membangun paket dari
+   `packaging/calamares/PKGBUILD` (tanpa AUR), memvalidasi modul wajib, lalu menaruhnya di `localrepo/`, lalu menambahkan repo `[nusantara-local]` ke pacman.conf.
 4. **Chaotic-AUR** (opsional, `WITH_CHAOTIC=1`): `scripts/enable-chaotic.sh` memasang keyring
    + mirrorlist, lalu repo `[chaotic-aur]` diaktifkan dan `pamac` ditambahkan.
 5. `scripts/filter-packages.sh <paket> <pacman.conf>` membuang paket/grup yang tidak ada
@@ -107,7 +107,7 @@ Untuk install, klik ikon **Install Nusantara OS**.
 | `The 'syslinux' package is missing from the package list!` | `syslinux` wajib ada di `packages.x86_64` |
 | `xorriso`/`mcopy` tidak ditemukan | `sudo pacman -S libisoburn mtools dosfstools` |
 | Build gagal `target not found: <paket>` | jalankan `scripts/filter-packages.sh`, atau hapus paket tersebut; paket AUR ada di `packages.aur.x86_64` |
-| Calamares gagal dibangun | build lanjut dengan `archinstall`; cek log `[calamares]` (butuh `kpmcore`, `qt6-*`) |
+| Calamares gagal dibangun | build lanjut dengan `archinstall`; cek log `[calamares]` (butuh `kpmcore`, `qt6-*`, binding Python) |
 | `failed to mount /dev/loop` | butuh hak root / container `--privileged` |
 | ISO > 4 GB | kurangi paket berat (`gimp`, `krita`, `obs-studio`, `libreoffice-still`) |
 | Layar hitam saat boot | pilih entri **Safe Mode** di menu boot |

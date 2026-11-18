@@ -28,7 +28,7 @@
 | Desktop | KDE Plasma (`plasma-meta`), SDDM; varian Xfce / GNOME / Sway |
 | Filesystem | BTRFS subvolume `@`, `@home`, `@snapshots`, `@var_log`, `@var_cache` |
 | Snapshot | Snapper + Timeshift + `grub-btrfs` (boot ke snapshot) |
-| Installer | **Calamares 3.4** (dibangun dari AUR saat build) dengan fallback **archinstall** |
+| Installer | **Calamares 3.4** (dibangun dari `packaging/calamares` saat build) dengan fallback **archinstall** |
 | Live session | Autologin user `nusantara` ke Plasma, sudo tanpa password, ikon "Pasang Nusantara OS" |
 | Gaming | Steam, Lutris, GameMode, MangoHud, RetroArch, Winetricks |
 | Grafis | Mesa + Vulkan (AMD/Intel), driver NVIDIA di `nusantara-assistant` |
@@ -67,7 +67,7 @@ WITH_CALAMARES=0 sudo ./build.sh            # tanpa installer grafis (pakai arch
 WITH_CHAOTIC=1 sudo ./build.sh              # tambah repo Chaotic-AUR + pamac
 ```
 
-`WITH_CALAMARES` default **1**: Calamares tidak ada di repo resmi Arch, jadi `build.sh` membangun paketnya dari AUR (10–20 menit) dan memasukkannya ke repo lokal `localrepo/`. Kalau gagal, build tetap lanjut dan ISO memakai `archinstall`.
+`WITH_CALAMARES` default **1**: Calamares tidak ada di repo resmi Arch, jadi `build.sh` membangun paketnya dari `PKGBUILD` lokal di `packaging/calamares/` (10–20 menit, tanpa perlu akses AUR) dan memasukkannya ke repo lokal `localrepo/`. Kalau gagal, build tetap lanjut dan ISO memakai `archinstall`.
 
 Build butuh ~20 GB disk kosong dan koneksi internet. Ubuntu/Debian **tidak bisa** — `mkarchiso` hanya ada di Arch.
 
@@ -91,7 +91,7 @@ sudo dd if=out/*.iso of=/dev/sdX bs=4M status=progress oflag=sync   # ganti sdX!
 Tiga hal berbeda, jangan tertukar:
 
 1. **ISO preview (rilis `v2026.11.07`)** — 18 MB, bootable, berisi kernel Arch + shell busybox. Dibuat di host Ubuntu tanpa `mkarchiso`, hanya untuk membuktikan boot chain berjalan.
-2. **ISO penuh** — KDE + ±170 paket + Calamares, ±3–4 GB. Dibangun dengan `sudo ./build.sh kde` atau lewat GitHub Actions.
+2. **ISO penuh** — KDE + 173 paket + Calamares, ±3–4 GB. Dibangun dengan `sudo ./build.sh kde` atau lewat GitHub Actions.
 3. **Live session** — setelah boot: SDDM autologin `nusantara` → Plasma; ikon **Install Nusantara OS** menjalankan Calamares (`pkexec calamares`) atau `archinstall` bila Calamares tidak ikut.
 
 ## Struktur repo
@@ -103,6 +103,7 @@ Tiga hal berbeda, jangan tertukar:
 ├── packages.aur.x86_64        # paket AUR opsional (tidak dipakai saat build)
 ├── pacman.conf                # konfigurasi pacman untuk mkarchiso
 ├── build.sh                   # build ISO + overlay profil + Calamares/Chaotic
+├── packaging/calamares/       # PKGBUILD Calamares 3.4 (tanpa AUR)
 ├── Makefile                   # make iso / vm / clean / check
 ├── scripts/
 │   ├── branding.sh            # ganti nama distro
