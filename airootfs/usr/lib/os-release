@@ -1,0 +1,11 @@
+NAME="Nusantara OS"
+PRETTY_NAME="Nusantara OS 2026.11 (Garuda-style)"
+ID=nusantara
+ID_LIKE=arch
+BUILD_ID=rolling
+ANSI_COLOR="38;2;225;29;72"
+HOME_URL="https://github.com/antonocik/nusantara-os"
+DOCUMENTATION_URL="https://github.com/antonocik/nusantara-os/tree/main/docs"
+SUPPORT_URL="https://github.com/antonocik/nusantara-os/issues"
+BUG_REPORT_URL="https://github.com/antonocik/nusantara-os/issues"
+LOGO=nusantaraos

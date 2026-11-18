@@ -1,87 +1,179 @@
 #!/usr/bin/env bash
 # Nusantara Assistant — padanan Garuda Assistant / Garuda Setup Assistant
-# Menu terminal interaktif untuk setup pasca-install
-set -euo pipefail
+# Menu terminal interaktif untuk setup pasca-install.
+#
+# Sengaja TANPA `set -e`: satu perintah gagal tidak boleh menutup menu.
+set -uo pipefail
 
-RED=$'\e[31m'; GREEN=$'\e[32m'; YELLOW=$'\e[33m'; RESET=$'\e[0m'
+RED=$'\e[31m'; GREEN=$'\e[32m'; YELLOW=$'\e[33m'; DIM=$'\e[2m'; RESET=$'\e[0m'
+
+SUDO=""
+[[ $EUID -ne 0 ]] && SUDO="sudo"
+
+have() { command -v "$1" >/dev/null 2>&1; }
+
+# Install paket AUR lewat helper yang tersedia (paru/yay/pamac).
+aur_install() {
+  local helper
+  for helper in paru yay pamac; do
+    if have "$helper"; then
+      case "$helper" in
+        pamac) $SUDO pamac install --no-confirm "$@" ;;
+        *)     "$helper" -S --needed --noconfirm "$@" ;;
+      esac
+      return $?
+    fi
+  done
+  echo "${YELLOW}Tidak ada helper AUR (paru/yay/pamac).${RESET}"
+  echo "Paket dilewati: $*"
+  echo "Pasang helper dulu, misal:  sudo pacman -S --needed base-devel git && git clone https://aur.archlinux.org/paru.git"
+  return 1
+}
+
+snapshot() {
+  local msg="$1"
+  if have timeshift; then
+    $SUDO timeshift --create --comments "$msg" >/dev/null 2>&1 && echo "Snapshot Timeshift dibuat."
+  elif have snapper; then
+    $SUDO snapper -c root create -d "$msg" >/dev/null 2>&1 && echo "Snapshot Snapper dibuat."
+  else
+    echo "Tidak ada timeshift/snapper, snapshot dilewati."
+  fi
+}
 
 banner() {
   echo "============================================="
-  echo "  NusantaraOS Assistant — ala Garuda Assistant"
+  echo "  Nusantara OS Assistant — ala Garuda Assistant"
   echo "============================================="
+  echo "${DIM}Kernel: $(uname -r)   Desktop: ${XDG_CURRENT_DESKTOP:-?}${RESET}"
 }
 
 menu() {
   clear
   banner
   echo "1) Update sistem + snapshot"
-  echo "2) Pasang driver NVIDIA / AMD / Intel"
-  echo "3) Pasang kernel (zen/lts/cachyos)"
-  echo "4) Setup gaming (Steam, Heroic, RetroArch)"
+  echo "2) Pasang driver GPU (NVIDIA / AMD / Intel)"
+  echo "3) Pasang kernel tambahan (lts / cachyos)"
+  echo "4) Setup gaming (Steam, Lutris, MangoHud, RetroArch)"
   echo "5) Setup printer, bluetooth, wifi"
   echo "6) Bersihkan cache & log"
-  echo "7) Restore snapshot Timeshift"
+  echo "7) Restore snapshot"
+  echo "8) Repositori & mirror (reflector / Chaotic-AUR)"
   echo "0) Keluar"
-  read -rp "Pilih [0-7]: " choice
 }
 
 update() {
-  echo "=== Update + Snapshot ==="
-  sudo timeshift --create --comments "Before nusantara-update $(date -Is)" || true
-  sudo pacman -Syu
-  sudo pamac update -a || true
+  echo "=== Update sistem ==="
+  snapshot "Sebelum update $(date -Is)"
+  if have reflector; then
+    echo "Memilih mirror tercepat..."
+    $SUDO reflector --country Indonesia,Singapore,Japan,United\ States,Germany \
+      --protocol https --latest 20 --sort rate \
+      --save /etc/pacman.d/mirrorlist || echo "reflector gagal, mirror tidak diubah."
+  fi
+  $SUDO pacman -Syu
+  have pamac && $SUDO pamac update -a
+  have paccache && $SUDO paccache -rk3
+  echo "Selesai. Reboot bila ada update kernel/glibc."
 }
 
 drivers() {
   echo "=== Driver GPU ==="
-  lspci | grep -E "VGA|3D"
+  have lspci && lspci | grep -E "VGA|3D|Display"
   read -rp "Pilih driver [nvidia/amd/intel/all]: " d
-  case $d in
-    nvidia) sudo pacman -S --needed nvidia-dkms nvidia-utils nvidia-settings lib32-nvidia-utils opencl-nvidia ;;
-    amd) sudo pacman -S --needed mesa vulkan-radeon lib32-vulkan-radeon mesa-utils ;;
-    intel) sudo pacman -S --needed mesa intel-media-driver libva-intel-driver vulkan-intel lib32-vulkan-intel ;;
-    all) sudo pacman -S --needed mesa vulkan-radeon vulkan-intel nvidia-utils lib32-nvidia-utils ;;
+  case "$d" in
+    nvidia)
+      $SUDO pacman -S --needed nvidia-dkms nvidia-utils nvidia-settings \
+        lib32-nvidia-utils opencl-nvidia
+      echo "Pastikan header kernel terpasang: linux-zen-headers / linux-lts-headers"
+      ;;
+    amd)   $SUDO pacman -S --needed mesa vulkan-radeon lib32-vulkan-radeon mesa-utils ;;
+    intel) $SUDO pacman -S --needed mesa vulkan-intel lib32-vulkan-intel libva-intel-driver intel-media-driver ;;
+    all)   $SUDO pacman -S --needed mesa vulkan-radeon vulkan-intel libva-intel-driver ;;
+    *)     echo "Dilewati." ;;
   esac
 }
 
 kernel() {
-  echo "Kernel tersedia: linux-zen (default), linux-lts, linux-cachyos"
-  read -rp "Install kernel extra [lts/cachyos/skip]: " k
-  case $k in
-    lts) sudo pacman -S --needed linux-lts linux-lts-headers ;;
-    cachyos) sudo pacman -S --needed linux-cachyos linux-cachyos-headers ;;
-    *) echo "skip" ;;
+  echo "Kernel terpasang:"; pacman -Q | grep -E '^linux(-[a-z0-9]+)? ' || true
+  read -rp "Pasang kernel [lts/cachyos/skip]: " k
+  case "$k" in
+    lts)     $SUDO pacman -S --needed linux-lts linux-lts-headers ;;
+    cachyos) aur_install linux-cachyos linux-cachyos-headers ;;
+    *)       echo "Dilewati." ;;
   esac
 }
 
 gaming() {
   echo "=== Gaming ==="
-  sudo pacman -S --needed steam lutris heroic-games-launcher-bin gamemode lib32-gamemode mangohud vkbasalt retroarch protontricks winetricks
-  sudo systemctl enable --now gamemode
+  $SUDO pacman -S --needed steam lutris gamemode lib32-gamemode \
+    mangohud lib32-mangohud retroarch libretro-core-info winetricks
+  read -rp "Pasang juga paket AUR (heroic, protontricks, vkbasalt)? [y/N]: " y
+  [[ "${y,,}" == "y" ]] && aur_install heroic-games-launcher-bin protontricks vkbasalt
+  echo "Tips: aktifkan MangoHud dengan  mangohud %command%  di properti Steam."
 }
 
 printer() {
-  sudo systemctl enable --now cups bluetooth
-  sudo pacman -S --needed system-config-printer sane hplip
-  echo "Buka system-config-printer untuk tambah printer"
+  echo "=== Printer / Bluetooth / Wifi ==="
+  $SUDO pacman -S --needed cups cups-pk-helper system-config-printer sane hplip bluez bluez-utils
+  $SUDO systemctl enable --now cups.service
+  $SUDO systemctl enable --now bluetooth.service
+  $SUDO systemctl enable --now NetworkManager.service
+  echo "Buka system-config-printer untuk menambah printer."
 }
 
 clean() {
-  sudo pacman -Sc --noconfirm
-  sudo paccache -rk0
-  sudo journalctl --vacuum-time=7d
-  sudo rm -rf ~/.cache/*
+  echo "=== Bersihkan cache & log ==="
+  have paccache && $SUDO paccache -rk2
+  $SUDO pacman -Sc --noconfirm
+  $SUDO journalctl --vacuum-time=7d
+  rm -rf "${HOME:?}/.cache/"* 2>/dev/null || true
+  have flatpak && flatpak uninstall --unused -y 2>/dev/null
+  echo "Selesai."
 }
 
 restore() {
-  sudo timeshift --list
-  read -rp "Snapshot number untuk restore: " n
-  sudo timeshift --restore --snapshot $n
+  echo "=== Restore snapshot ==="
+  if have timeshift; then
+    $SUDO timeshift --list
+    read -rp "Nomor snapshot: " n
+    [[ -n "${n:-}" ]] && $SUDO timeshift --restore --snapshot "$n"
+  elif have snapper; then
+    $SUDO snapper -c root list
+    read -rp "Nomor snapshot: " n
+    [[ -n "${n:-}" ]] && echo "Rollback:  sudo snapper -c root undochange ${n}..0"
+  else
+    echo "timeshift/snapper tidak terpasang."
+  fi
+}
+
+repos() {
+  echo "=== Repositori & mirror ==="
+  echo "1) Pilih mirror tercepat (reflector)"
+  echo "2) Pasang keyring + mirrorlist Chaotic-AUR"
+  read -rp "Pilih [1/2/skip]: " r
+  case "$r" in
+    1) have reflector && $SUDO reflector --country Indonesia,Singapore,Japan \
+         --protocol https --latest 20 --sort rate --save /etc/pacman.d/mirrorlist ;;
+    2)
+      $SUDO pacman-key --init
+      $SUDO pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com
+      $SUDO pacman-key --lsign-key 3056513887B78AEB
+      $SUDO pacman -U --noconfirm \
+        'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' \
+        'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
+      echo "Tambahkan manual ke /etc/pacman.conf:"
+      echo "  [chaotic-aur]"
+      echo "  Include = /etc/pacman.d/chaotic-mirrorlist"
+      ;;
+    *) echo "Dilewati." ;;
+  esac
 }
 
 while true; do
   menu
-  case $choice in
+  read -rp "Pilih [0-8]: " choice
+  case "${choice:-}" in
     1) update ;;
     2) drivers ;;
     3) kernel ;;
@@ -89,9 +181,10 @@ while true; do
     5) printer ;;
     6) clean ;;
     7) restore ;;
-    0) echo "Bye."; exit 0 ;;
-    *) echo "Pilihan tidak valid"; sleep 1 ;;
+    8) repos ;;
+    0) echo "Sampai jumpa."; exit 0 ;;
+    *) echo "Pilihan tidak valid."; sleep 1; continue ;;
   esac
-  echo -e "${YELLOW}Tekan Enter untuk lanjut${RESET}"
-  read
+  echo
+  read -rp "${YELLOW}Tekan Enter untuk kembali ke menu${RESET}" _
 done

@@ -1,217 +1,309 @@
-/* Nusantara OS SDDM Theme — Merah Putih, Garuda-style
- * Warna: charcoal #0b0e14 + merah #e11d48 + putih #f8fafc
- * Berdasar maldives + dr460nized pattern
+/* Nusantara OS — tema SDDM "Merah Putih"
+ * Warna: charcoal #0b0e14, merah #e11d48, putih #f8fafc
+ *
+ * Ditulis ulang untuk SDDM 0.21 / Qt6:
+ *  - tanpa QtGraphicalEffects (dihapus di Qt6)
+ *  - memakai komponen resmi SddmComponents 2.0 (TextBox/ComboBox/Button/Clock)
+ *  - user dipilih lewat userModel.lastUser (SDDM tidak punya currentUser)
  */
 import QtQuick 2.0
-import QtQuick.Controls 2.0
 import SddmComponents 2.0
-import QtGraphicalEffects 1.0
 
 Rectangle {
     id: root
-    width: Screen.width
-    height: Screen.height
+    width: 1920
+    height: 1080
     color: "#0b0e14"
 
-    // user default terpilih
-    Component.onCompleted: {
-        if (userModel.lastIndex >= 0)
-            userModel.currentIndex = userModel.lastIndex
+    property int sessionIndex: session.index
+
+    TextConstants { id: textConstants }
+
+    Connections {
+        target: sddm
+
+        onLoginSucceeded: {
+            errorMessage.color = "#22c55e"
+            errorMessage.text = textConstants.loginSucceeded
+        }
+        onLoginFailed: {
+            password.text = ""
+            errorMessage.color = "#f43f5e"
+            errorMessage.text = textConstants.loginFailed
+        }
+        onInformationMessage: {
+            errorMessage.color = "#f43f5e"
+            errorMessage.text = message
+        }
     }
 
-    property string selectedUser: userModel.currentUser
-
-    // Pola background Garuda-style: gradient + glow merah + pola diagonal
+    // ---- latar: gradient charcoal -> merah gelap ----
     Rectangle {
         anchors.fill: parent
         gradient: Gradient {
-            orientation: Gradient.Vertical
-            GradientStop { position: 0.0; color: "#0b0e14" }
-            GradientStop { position: 0.6; color: "#131826" }
-            GradientStop { position: 1.0; color: "#1e0a12" }
+            GradientStop { position: 0.00; color: "#0b0e14" }
+            GradientStop { position: 0.55; color: "#131826" }
+            GradientStop { position: 1.00; color: "#1e0a12" }
         }
-        opacity: 0.98
     }
 
-    // Glow merah tengah
-    Rectangle {
-        x: parent.width/2 - 320
-        y: parent.height/2 - 320
-        width: 640; height: 640
-        radius: 320
-        color: "#e11d48"
-        opacity: 0.08
-        layer.enabled: true
-        layer.effect: FastBlur { radius: 60 }
-    }
-
-    // Pola diagonal halus ala dr460nized
+    // garis diagonal halus (pola khas Nusantara)
     Repeater {
-        model: 18
+        model: 22
         delegate: Rectangle {
-            x: index * 90
-            y: -100
+            x: index * 120 - 240
+            y: -200
             width: 2
-            height: parent.height + 200
+            height: root.height + 400
             color: "#ffffff"
-            opacity: 0.06
+            opacity: 0.045
             rotation: 18
         }
     }
 
-    // Logo Nusantara (SVG di pixmaps)
+    // ---- logo & judul ----
     Image {
+        id: logo
         source: "file:///usr/share/pixmaps/nusantaraos.svg"
-        width: 96; height: 96
+        width: 88
+        height: 88
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        anchors.topMargin: parent.height * 0.08
+        anchors.topMargin: Math.max(20, root.height * 0.055)
         fillMode: Image.PreserveAspectFit
-        layer.enabled: true
-        layer.effect: DropShadow {
-            cached: false
-            radius: 12
-            samples: 16
-            color: "#e11d48"
-        }
     }
 
     Text {
+        id: title
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: parent.height * 0.08 + 110
+        anchors.top: logo.bottom
+        anchors.topMargin: 10
         text: "NUSANTARA OS"
         color: "#f8fafc"
-        font.pixelSize: 28
-        font.family: "Inter, Noto Sans"
+        font.pixelSize: 26
         font.bold: true
         font.letterSpacing: 6
     }
+
     Text {
+        id: subtitle
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: parent.height * 0.08 + 146
-        text: "GARUDA-STYLE  •  ARCH  •  BTRFS  •  KDE"
+        anchors.top: title.bottom
+        anchors.topMargin: 4
+        text: "ARCH  •  KDE PLASMA  •  BTRFS"
         color: "#f43f5e"
-        font.pixelSize: 11
-        font.family: "Inter, Noto Sans"
+        font.pixelSize: 10
         font.letterSpacing: 3
     }
 
-    // Box login gelas kaca
+    // ---- kartu login ----
     Rectangle {
-        id: loginBox
-        width: 380
-        height: 260
-        anchors.centerIn: parent
-        anchors.topMargin: 80
+        id: card
+        width: 360
+        height: loginColumn.implicitHeight + 48
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: subtitle.bottom
+        anchors.topMargin: 28
         radius: 18
-        color: "#ffffff"
-        opacity: 0.06
-        border.color: "#ffffff"
+        color: Qt.rgba(0.07, 0.09, 0.13, 0.92)
+        border.color: Qt.rgba(0.88, 0.11, 0.28, 0.55)
         border.width: 1
-        border.opacity: 0.12
-        layer.enabled: true
-        layer.effect: FastBlur { radius: 20 }
-    }
 
-    Column {
-        anchors.centerIn: parent
-        anchors.topMargin: 80
-        spacing: 12
-        width: 320
+        Column {
+            id: loginColumn
+            anchors.fill: parent
+            anchors.margins: 24
+            spacing: 10
 
-        // Daftar user
-        ComboBox {
-            width: parent.width
-            height: 42
-            model: userModel
-            currentIndex: userModel.currentIndex
-            onCurrentIndexChanged: loginBox.selectedUser = model.name
-            background: Rectangle { color: "#ffffff"; opacity: 0.10; radius: 10; border.color: "#f43f5e"; border.width: 1 }
-            textRole: "name"
-        }
-
-        TextField {
-            id: passwordField
-            width: parent.width
-            height: 42
-            echoMode: TextInput.Password
-            placeholderText: "Password"
-            color: "#f8fafc"
-            placeholderTextColor: "#94a3b8"
-            font.family: "Inter"
-            font.pixelSize: 14
-            background: Rectangle { color: "#000000"; opacity: 0.35; radius: 10; border.color: "#ffffff"; border.width: 1; border.opacity: 0.15 }
-            Keys.onReturnPressed: tryLogin()
-            Keys.onEscapePressed: passwordField.clear()
-        }
-
-        Button {
-            width: parent.width
-            height: 44
-            text: "Login"
-            background: Rectangle {
-                color: pressed ? "#9f1239" : "#e11d48"
-                radius: 10
-                border.color: "#fb7185"
+            Text {
+                width: parent.width
+                text: textConstants.welcomeText.arg(sddm.hostName)
+                color: "#e2e8f0"
+                font.pixelSize: 14
+                elide: Text.ElideRight
+                horizontalAlignment: Text.AlignHCenter
             }
-            contentItem: Text { text: parent.text; color: "#ffffff"; font.bold: true; font.family: "Inter"; anchors.centerIn: parent; font.pixelSize: 15 }
-            onClicked: tryLogin()
-        }
 
-        Text {
-            width: parent.width
-            horizontalAlignment: Text.AlignCenter
-            text: loginBox.selectedUser ? "Login sebagai " + loginBox.selectedUser : ""
-            color: "#94a3b8"
-            font.pixelSize: 12
+            Text {
+                width: parent.width
+                text: textConstants.userName
+                color: "#94a3b8"
+                font.pixelSize: 11
+                font.bold: true
+            }
+
+            TextBox {
+                id: name
+                width: parent.width
+                height: 38
+                text: userModel.lastUser
+                color: "#0f1522"
+                borderColor: "#334155"
+                focusColor: "#e11d48"
+                hoverColor: "#f43f5e"
+                textColor: "#f8fafc"
+                radius: 8
+                font.pixelSize: 14
+
+                KeyNavigation.backtab: rebootButton
+                KeyNavigation.tab: password
+
+                Keys.onPressed: {
+                    if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                        sddm.login(name.text, password.text, sessionIndex)
+                        event.accepted = true
+                    }
+                }
+            }
+
+            Text {
+                width: parent.width
+                text: textConstants.password
+                color: "#94a3b8"
+                font.pixelSize: 11
+                font.bold: true
+            }
+
+            TextBox {
+                id: password
+                width: parent.width
+                height: 38
+                echoMode: TextInput.Password
+                color: "#0f1522"
+                borderColor: "#334155"
+                focusColor: "#e11d48"
+                hoverColor: "#f43f5e"
+                textColor: "#f8fafc"
+                radius: 8
+                font.pixelSize: 14
+
+                KeyNavigation.backtab: name
+                KeyNavigation.tab: session
+
+                Keys.onPressed: {
+                    if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                        sddm.login(name.text, password.text, sessionIndex)
+                        event.accepted = true
+                    }
+                }
+            }
+
+            Text {
+                width: parent.width
+                text: textConstants.session
+                color: "#94a3b8"
+                font.pixelSize: 11
+                font.bold: true
+            }
+
+            ComboBox {
+                id: session
+                width: parent.width
+                height: 34
+                model: sessionModel
+                index: sessionModel.lastIndex
+                color: "#151b28"
+                menuColor: "#151b28"
+                borderColor: "#334155"
+                focusColor: "#e11d48"
+                hoverColor: "#f43f5e"
+                textColor: "#f8fafc"
+                font.pixelSize: 12
+
+                KeyNavigation.backtab: password
+                KeyNavigation.tab: loginButton
+            }
+
+            Text {
+                id: errorMessage
+                width: parent.width
+                height: 14
+                text: textConstants.prompt
+                color: "#64748b"
+                font.pixelSize: 10
+                horizontalAlignment: Text.AlignHCenter
+                elide: Text.ElideRight
+            }
+
+            Row {
+                width: parent.width
+                spacing: 8
+
+                Button {
+                    id: loginButton
+                    width: (parent.width - 16) / 3
+                    height: 36
+                    text: textConstants.login
+                    borderColor: "#e11d48"
+                    activeColor: "#be123c"
+                    pressedColor: "#9f1239"
+                    textColor: "#ffffff"
+                    font.pixelSize: 12
+                    font.bold: true
+                    onClicked: sddm.login(name.text, password.text, sessionIndex)
+                    KeyNavigation.backtab: session
+                    KeyNavigation.tab: shutdownButton
+                }
+
+                Button {
+                    id: shutdownButton
+                    width: (parent.width - 16) / 3
+                    height: 36
+                    text: textConstants.shutdown
+                    borderColor: "#1e293b"
+                    activeColor: "#334155"
+                    pressedColor: "#0f172a"
+                    textColor: "#f8fafc"
+                    font.pixelSize: 12
+                    onClicked: sddm.powerOff()
+                    KeyNavigation.backtab: loginButton
+                    KeyNavigation.tab: rebootButton
+                }
+
+                Button {
+                    id: rebootButton
+                    width: (parent.width - 16) / 3
+                    height: 36
+                    text: textConstants.reboot
+                    borderColor: "#1e293b"
+                    activeColor: "#334155"
+                    pressedColor: "#0f172a"
+                    textColor: "#f8fafc"
+                    font.pixelSize: 12
+                    onClicked: sddm.reboot()
+                    KeyNavigation.backtab: shutdownButton
+                    KeyNavigation.tab: name
+                }
+            }
         }
     }
 
-    // Jam & tanggal di pojok
-    Column {
-        anchors.right: parent.right
+    // ---- jam & tanggal ----
+    Clock {
+        id: clock
         anchors.top: parent.top
+        anchors.right: parent.right
         anchors.margins: 28
-        spacing: 4
-        Text {
-            text: Qt.formatTime(new Date(), "hh:mm")
-            color: "#f8fafc"
-            font.pixelSize: 38
-            font.bold: true
-            anchors.right: parent.right
-        }
-        Text {
-            text: Qt.formatDate(new Date(), "dddd, dd MMMM yyyy")
-            color: "#94a3b8"
-            font.pixelSize: 12
-            anchors.right: parent.right
-        }
+        color: "#f8fafc"
+        timeFont.pixelSize: 30
+        timeFont.bold: true
+        dateFont.pixelSize: 11
     }
 
-    // Footer
     Text {
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottomMargin: 18
-        text: "Nusantara OS  •  Merdeka  •  2026"
-        color: "#64748b"
-        font.pixelSize: 11
+        anchors.bottomMargin: 16
+        text: "Nusantara OS  •  " + sddm.hostName
+        color: "#475569"
+        font.pixelSize: 10
         font.letterSpacing: 2
     }
 
-    // Power buttons: Reboot & Shutdown (basics dari maldives)
-    Row {
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        anchors.margins: 20
-        spacing: 10
-        Button { text: "⟳ Reboot"; onClicked: root.powerButton.click() }
-        Button { text: "⏻ Shutdown"; onClicked: root.shutdownButton.click() }
-    }
-
-    function tryLogin() {
-        sddm.login(userModel.currentUser, passwordField.text, sddm.sessionId)
+    Component.onCompleted: {
+        if (name.text === "")
+            name.focus = true
+        else
+            password.focus = true
     }
 }

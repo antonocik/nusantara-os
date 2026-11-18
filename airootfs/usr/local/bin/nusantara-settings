@@ -1,7 +1,39 @@
 #!/usr/bin/env bash
-# Nusantara Settings — padanan garuda-settings (power, wifi, printer, bluetooth)
-set -euo pipefail
-echo "Nusantara Settings (dummy wrapper)"
-sudo systemctl enable --now NetworkManager bluetooth cups || true
-sudo systemctl enable --now power-profiles-daemon tuned || true
-echo "Done. Buka system-config-printer / bluedevil untuk lanjut."
+# Nusantara Settings — padanan garuda-settings
+# Mengaktifkan layanan dasar yang dipakai desktop Nusantara OS.
+set -uo pipefail
+
+GREEN=$'\e[32m'; YELLOW=$'\e[33m'; RESET=$'\e[0m'
+SUDO=""
+[[ $EUID -ne 0 ]] && SUDO="sudo"
+have() { command -v "$1" >/dev/null 2>&1; }
+
+echo -e "${GREEN}=== Nusantara OS Settings ===${RESET}"
+
+enable() { # enable <unit> [paket]
+  local unit="$1" pkg="${2:-}"
+  if systemctl list-unit-files "$unit" >/dev/null 2>&1 && \
+     systemctl list-unit-files "$unit" | grep -q "^$unit"; then
+    $SUDO systemctl enable --now "$unit" && echo "  aktif: $unit"
+  elif [[ -n "$pkg" ]] && have pacman; then
+    echo -e "  ${YELLOW}$unit belum ada (paket: $pkg)${RESET}"
+  fi
+}
+
+echo "Layanan jaringan & perangkat:"
+enable NetworkManager.service networkmanager
+enable bluetooth.service bluez
+enable cups.service cups
+
+echo "Layanan performa:"
+enable tuned.service tuned
+enable earlyoom.service earlyoom
+enable fstrim.timer util-linux
+enable snapper-timeline.timer snapper
+
+echo
+echo "Status singkat:"
+systemctl is-active NetworkManager bluetooth cups tuned earlyoom 2>/dev/null | paste -sd' ' -
+echo
+echo "Untuk printer: system-config-printer"
+echo "Untuk bluetooth: bluedevil (ada di System Settings)"

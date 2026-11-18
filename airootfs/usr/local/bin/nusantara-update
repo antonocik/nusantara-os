@@ -1,25 +1,45 @@
 #!/usr/bin/env bash
 # Nusantara Update — padanan garuda-update
-set -euo pipefail
+# Snapshot -> mirror -> pacman -Syu -> AUR -> bersihkan cache
+set -uo pipefail
 
-echo "=== NusantaraOS Update ==="
-echo "1) Buat snapshot BTRFS..."
-sudo timeshift --create --comments "Before nusantara-update $(date -Is)" || echo "Timeshift skip (tidak perlu sudo / btrfs)"
+RED=$'\e[31m'; GREEN=$'\e[32m'; RESET=$'\e[0m'
+SUDO=""
+[[ $EUID -ne 0 ]] && SUDO="sudo"
+have() { command -v "$1" >/dev/null 2>&1; }
+
+echo -e "${GREEN}=== Nusantara OS Update ===${RESET}"
+
+echo "1) Snapshot sistem..."
+if have timeshift; then
+  $SUDO timeshift --create --comments "Sebelum update $(date -Is)" || \
+    echo "Timeshift dilewati (bukan BTRFS / bukan root)."
+elif have snapper; then
+  $SUDO snapper -c root create -d "Sebelum update $(date -Is)" || true
+else
+  echo "timeshift/snapper tidak ada, dilewati."
+fi
 
 echo "2) Update mirrorlist..."
-if command -v reflector &>/dev/null; then
-  sudo reflector --country Indonesia,Singapore,Japan,US,EU --protocol https --quick 5 --verbose --latest 5 --sort score --save /etc/pacman.d/mirrorlist
+if have reflector; then
+  $SUDO reflector --country Indonesia,Singapore,Japan,United\ States,Germany \
+    --protocol https --latest 20 --sort rate \
+    --save /etc/pacman.d/mirrorlist || echo "reflector gagal, mirror tidak diubah."
 else
-  echo "reflector tidak ada, skip"
+  echo "reflector tidak ada, dilewati."
 fi
 
 echo "3) Pacman full update..."
-sudo pacman -Syu
+$SUDO pacman -Syu || { echo -e "${RED}Update gagal.${RESET}"; exit 1; }
 
-echo "4) PAMAC AUR update..."
-if command -v pamac &>/dev/null; then pamac update -a || true; fi
+echo "4) Paket AUR (bila ada helper)..."
+if have pamac; then $SUDO pamac update -a
+elif have paru; then paru -Sua --noconfirm
+elif have yay; then yay -Sua --noconfirm
+else echo "Tidak ada paru/yay/pamac, dilewati."; fi
 
-echo "5) Bersihkan cache..."
-sudo paccache -rk3 2>/dev/null || sudo pacman -Sc --noconfirm || true
+echo "5) Bersihkan cache paket lama..."
+have paccache && $SUDO paccache -rk3
 
-echo "Selesai. Reboot jika ada kernel/GLIBC update."
+echo
+echo -e "${GREEN}Selesai.${RESET} Reboot bila ada update kernel/glibc/systemd."

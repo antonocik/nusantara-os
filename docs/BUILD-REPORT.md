@@ -19,7 +19,7 @@ GitHub Actions (container Arch) atau lokal di Arch/Garuda.
 | Calamares | ✅ 3.4 — 21 modul, branding `nusantara`, QML slideshow |
 | Live session | ✅ user `nusantara`, autologin SDDM, installer di desktop |
 | Tema | ✅ SDDM `nusantara`, Plymouth, GRUB, logo SVG + PNG |
-| Tool | ✅ assistant, update, settings, install, line-cpufreq |
+| Tool | ✅ assistant, update, settings, install, line-cpufreq (tanpa asumsi AUR/timeshift) |
 | Dokumentasi | ✅ README, ARCHITECTURE, BUILD, BUILD-REPORT, ROADMAP |
 
 ## Sudah diverifikasi di repo ini
@@ -31,6 +31,12 @@ GitHub Actions (container Arch) atau lokal di Arch/Garuda.
 - Config Calamares: semua key cocok dengan schema 3.4 (kecuali `swapPartitionName` yang dibaca runtime)
 - Semua path di `file_permissions` ada di `airootfs/`
 - SVG logo: XML valid
+- Tema SDDM ditulis ulang untuk **SDDM 0.21 / Qt6**: hanya `SddmComponents 2.0`
+  (TextBox, ComboBox, Button, Clock) — properti dicocokkan satu per satu dengan
+  sumber upstream `components/2.0/*.qml`; `QtGraphicalEffects`, `Screen.width`,
+  `userModel.currentUser` (tidak ada di SDDM) sudah dibuang
+- Identitas distro: `airootfs/usr/lib/os-release`, `etc/lsb-release`, `etc/issue`
+  (ID `nusantara`, `ID_LIKE=arch`)
 
 ## Belum diverifikasi (butuh host Arch / runner CI)
 
@@ -38,7 +44,8 @@ GitHub Actions (container Arch) atau lokal di Arch/Garuda.
 - Build Calamares dari `packaging/calamares` di container (durasi + modul Python)
 - Boot ISO hasil build: syslinux/UEFI, Plymouth, SDDM autologin
 - Install Calamares sampai selesai, termasuk subvolume BTRFS + Snapper
-- Tema SDDM/Plymouth tampil benar di layar
+- Tema SDDM/Plymouth tampil benar di layar (tema sudah lolos audit API Qt6,
+  tapi belum pernah dirender di mesin nyata)
 
 ## Build CI pertama yang berhasil
 
