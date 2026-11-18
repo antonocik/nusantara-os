@@ -1,4 +1,9 @@
 [Plymouth Theme]
 Name=Nusantara
-Description=Nusantara OS Plymouth Theme - Merah Putih
+Description=Nusantara OS — Merah Putih
 ModuleName=script
+Font=Sans
+
+[script]
+ImageDir=/usr/share/plymouth/themes/nusantara
+ScriptFile=/usr/share/plymouth/themes/nusantara/nusantara.script

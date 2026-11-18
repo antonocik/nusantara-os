@@ -37,6 +37,13 @@ GitHub Actions (container Arch) atau lokal di Arch/Garuda.
   `userModel.currentUser` (tidak ada di SDDM) sudah dibuang
 - Identitas distro: `airootfs/usr/lib/os-release`, `etc/lsb-release`, `etc/issue`
   (ID `nusantara`, `ID_LIKE=arch`)
+- Tema Plymouth ditulis ulang memakai API asli modul script (diverifikasi ke
+  `src/plugins/splash/script/script-lib-*.script` upstream): `Sprite(image)`,
+  `SetX/SetY/SetOpacity`, `Image.Text(teks,r,g,b,alpha,font)`,
+  `Plymouth.SetRefreshFunction/SetBootProgressFunction`. `Window.Hook(...)` dan
+  `sprite.position` (yang dipakai versi lama) tidak ada di Plymouth.
+  `nusantara.plymouth` sekarang punya `ScriptFile=` + `ImageDir=` — tanpa
+  `ScriptFile`, plugin script Plymouth tidak memuat skrip apa pun
 
 ## Belum diverifikasi (butuh host Arch / runner CI)
 

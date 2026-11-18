@@ -1,68 +1,120 @@
-# Nusantara OS Plymouth Script Theme — Merah Putih
-# Background charcoal + merah, logo tengah, progress bar merah
+# Nusantara OS — tema Plymouth "Merah Putih"
+#
+# Memakai API modul script Plymouth yang sebenarnya:
+#   Sprite(image) / sprite.SetImage() / SetX() / SetY() / SetOpacity()
+#   Image("file.png") / Image.Text(teks, r, g, b, alpha, font, align)
+#   Plymouth.SetRefreshFunction / SetBootProgressFunction / ...
+#
+# Catatan: tema ini BUKAN QML. Tidak ada `Window.Hook`, tidak ada
+# `sprite.position` — keduanya tidak ada di Plymouth dan membuat splash
+# gagal tampil.
 
-Window.SetBackgroundTopColor (0.043, 0.055, 0.078);
-Window.SetBackgroundBottomColor (0.118, 0.039, 0.071);
+# ---- latar: charcoal -> merah gelap ----
+Window.SetBackgroundTopColor(0.043, 0.055, 0.078);
+Window.SetBackgroundBottomColor(0.118, 0.039, 0.071);
 
-# State
-global.status_duration = 15;
-global.progress_duration = 100;
-global.rotation_duration = 30.0;
-global.message_duration = 10.0;
-global.progress = 0.0;
-global.logo = null;
-global.progress_bar = null;
-global.spinner = null;
-global.message = null;
+# ---- logo ----
+logo.image = Image("logo.png").Scale(180, 180);
+logo.sprite = Sprite(logo.image);
 
-fun draw_background (x, y, width, height) {
-  # background sudah di-set via SetBackground*
-  # tambah vignette halus via overlay rectangle
-  local red = 0.225; local green = 0.114; local blue = 0.282;
-  local r = 0.882; local g = 0.114; local b = 0.282;
-  # logo
-  if (global.logo) {
-    global.logo.position.x = x + (width - global.logo.width) / 2;
-    global.logo.position.y = y + height * 0.22;
-  }
-  # progress bar
-  if (global.progress_bar) {
-    global.progress_bar.position.x = x + (width - 420) / 2;
-    global.progress_bar.position.y = y + height * 0.72;
-  }
-  # message
-  if (global.message) {
-    global.message.position.x = x + (width - global.message.width) / 2;
-    global.message.position.y = y + height * 0.80;
-  }
+# ---- judul & subjudul ----
+title.image = Image.Text("NUSANTARA OS", 0.972, 0.980, 0.988, 1.0, "Sans 22");
+title.sprite = Sprite(title.image);
+
+subtitle.image = Image.Text("ARCH LINUX  ·  KDE PLASMA  ·  BTRFS", 0.960, 0.247, 0.337, 1.0, "Sans 10");
+subtitle.sprite = Sprite(subtitle.image);
+
+# ---- teks status (pesan dari plymouth) ----
+status_text.image = Image.Text("", 0.850, 0.870, 0.900, 1.0, "Sans 10");
+status_text.sprite = Sprite(status_text.image);
+status_text.sprite.SetOpacity(0);
+
+# ---- progress bar: kotak + isi ----
+box.image = Image("progress_box.png");
+box.sprite = Sprite(box.image);
+
+bar.original_image = Image("progress_bar.png");
+bar.sprite = Sprite();
+bar.sprite.SetOpacity(0);
+
+# posisi disimpan sendiri, supaya tidak bergantung pada sprite.GetY()
+logo_y = 0;
+title_y = 0;
+box_y = 0;
+
+fun layout ()
+{
+        local w = Window.GetWidth();
+        local h = Window.GetHeight();
+        local cx = Window.GetX() + w / 2;
+
+        logo_y = Window.GetY() + Math.Int(h * 0.26) - Math.Int(logo.image.GetHeight() / 2);
+        logo.sprite.SetX(cx - Math.Int(logo.image.GetWidth() / 2));
+        logo.sprite.SetY(logo_y);
+
+        title_y = logo_y + logo.image.GetHeight() + 14;
+        title.sprite.SetX(cx - Math.Int(title.image.GetWidth() / 2));
+        title.sprite.SetY(title_y);
+
+        subtitle.sprite.SetX(cx - Math.Int(subtitle.image.GetWidth() / 2));
+        subtitle.sprite.SetY(title_y + title.image.GetHeight() + 6);
+
+        box_y = Window.GetY() + Math.Int(h * 0.68);
+        box.sprite.SetX(cx - Math.Int(box.image.GetWidth() / 2));
+        box.sprite.SetY(box_y);
+
+        bar.sprite.SetX(cx - Math.Int(bar.original_image.GetWidth() / 2));
+        bar.sprite.SetY(box_y + Math.Int((box.image.GetHeight() - bar.original_image.GetHeight()) / 2));
+
+        status_text.sprite.SetX(cx - Math.Int(status_text.image.GetWidth() / 2));
+        status_text.sprite.SetY(box_y + box.image.GetHeight() + 12);
 }
 
-fun draw_progress (duration, progress) {
-  global.progress = progress;
-  if (global.progress_bar) {
-    # update progress dengan cara redrawing scale
-    # plymouth script: gunakan Math.Progress
-    # (draw_background dipanggil ulang tiap frame)
-    global.progress_bar.position.x = global.progress_bar.position.x;
-  }
+# ---- progress: gambar di-scale sesuai persentase ----
+fun progress_callback (duration, progress)
+{
+        local width = Math.Int(bar.original_image.GetWidth() * progress);
+
+        if (progress <= 0.001) {
+                bar.sprite.SetOpacity(0);
+        } else {
+                if (width < 2)
+                        width = 2;
+                bar.image = bar.original_image.Scale(width, bar.original_image.GetHeight());
+                bar.sprite.SetImage(bar.image);
+                bar.sprite.SetOpacity(1);
+        }
 }
 
-fun startup (duration, progress) {
-  if (!global.logo) {
-    global.logo = Sprite();
-    global.logo.image = Image("/usr/share/plymouth/themes/nusantara/logo.png");
-    global.logo.opacity = 1.0;
-  }
-  # fallback Text jika logo.png tidak ada
-  if (!global.message) {
-    global.message = Sprite();
-    global.message.image = Image.Text("NUSANTARA OS  •  Merdeka", 36, 1, 0.97, 0.98, 0.98);
-    global.message.opacity = 0.9;
-  }
+# ---- pesan ("Memuat kernel...", "Memeriksa sistem berkas...") ----
+fun message_callback (text)
+{
+        if (text == "") {
+                status_text.sprite.SetOpacity(0);
+                return;
+        }
+        status_text.image = Image.Text(text, 0.850, 0.870, 0.900, 1.0, "Sans 10");
+        status_text.sprite.SetImage(status_text.image);
+        status_text.sprite.SetOpacity(1);
+        layout();
 }
 
-fun boot (duration, progress) { startup(duration, progress); draw_progress(duration, progress); }
-fun shutdown (duration, progress) { startup(duration, progress); draw_progress(duration, progress); }
+fun refresh_callback ()
+{
+        layout();
+}
 
-Window.Hook ("boot", boot);
-Window.Hook ("shutdown", shutdown);
+fun quit_callback ()
+{
+        bar.sprite.SetOpacity(1);
+}
+
+# ---- kejadian ----
+Plymouth.SetRefreshFunction(refresh_callback);
+Plymouth.SetBootProgressFunction(progress_callback);
+Plymouth.SetDisplayMessageFunction(message_callback);
+Plymouth.SetDisplayNormalFunction(refresh_callback);
+Plymouth.SetQuitFunction(quit_callback);
+
+# ---- gambar pertama ----
+layout();
