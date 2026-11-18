@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034
+# Nusantara OS — profil archiso
 
 iso_name="NusantaraOS"
-iso_label="NUSANTARAOS_2026"
-iso_application="Nusantara OS Linux - Garuda-like Arch Distro"
-iso_version="2026.11.07"
+iso_label="NUSANTARAOS_$(date +%Y%m)"
+iso_application="Nusantara OS — Arch + KDE + BTRFS (Garuda-style)"
+iso_version="$(date +%Y.%m.%d)"
 iso_publisher="Nusantara OS Project <dev@nusantaraos.local>"
 install_dir="arch"
 buildmodes=('iso')
@@ -22,13 +23,13 @@ bootmodes=(
 arch="x86_64"
 pacman_conf="pacman.conf"
 airootfs_image_type="squashfs"
-airootfs_image_tool_options=('-comp' 'xz' '-Xbcj' 'x86' '-b' '1M')
+# zstd: jauh lebih cepat dari xz dengan rasio hampir sama
+airootfs_image_tool_options=('-comp' 'zstd' '-Xcompression-level' '15' '-b' '1M')
 
 file_permissions=(
   ["/etc/sudoers.d/g_wheel"]="0:0:440"
-  ["/usr/local/bin/nusantara-line-cpufreq"]="0:0:755"
   ["/usr/local/bin/nusantara-assistant"]="0:0:755"
   ["/usr/local/bin/nusantara-update"]="0:0:755"
   ["/usr/local/bin/nusantara-settings"]="0:0:755"
-  ["/usr/bin/calamares"]="0:0:755"
+  ["/usr/local/bin/nusantara-line-cpufreq"]="0:0:755"
 )

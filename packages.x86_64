@@ -1,18 +1,23 @@
-# NusantaraOS - packages.x86_64 (sama gaya dengan Garuda: KDE + Gaming + Perf)
+# Nusantara OS — packages.x86_64
+# Paket dari repo resmi Arch (core/extra/multilib).
 # Satu paket per baris. Komentar dengan #.
+# Paket AUR opsional ada di packages.aur.x86_64 (tidak dipakai saat build ISO).
 
-# --- Base ---
+# --- Base sistem ---
 base
+base-devel
 sudo
 linux-zen
-linux-firmware
 linux-zen-headers
+linux-firmware
 systemd
 systemd-sysvcompat
+mkinitcpio
+plymouth
 grub
-refind
 efibootmgr
 os-prober
+refind
 dosfstools
 exfatprogs
 ntfs-3g
@@ -21,29 +26,23 @@ snapper
 snap-pac
 timeshift
 grub-btrfs
-dracut
-plymouth
+arch-install-scripts
+reflector
+pacman-contrib
 
-# --- Desktop KDE Plasma (Garuda dr460nized look) ---
-plasma
-plasma-desktop
-plasma-workspace
-plasma-discover
-kwin_x11
+# --- Desktop KDE Plasma ---
+plasma-meta
+plasma-nm
+plasma-pa
+plasma-systemmonitor
+plasma-firewall
+kscreen
+kwallet-pam
 sddm
 sddm-kcm
 kdeconnect
-kdeplasma-addons
-kio-extras
 kde-gtk-config
-kvantum-qt5
-kvantum-qt6
-oranchelos-kde
-sweet-kde-theme
-candy-icons
-qgnomeplatform
-qt5ct
-qt6ct
+breeze-gtk
 dolphin
 konsole
 kate
@@ -57,28 +56,22 @@ filelight
 systemsettings
 kinfo
 kcalc
-kcharselect
-kdesu
-photocharm
-plasma-systemmonitor
-yakuake
 kcolorchooser
 kolourpaint
 kompare
 kwrite
-kaccounts-providers
-kaccounts-sso
+yakuake
+kio-extras
+kio-admin
+kde-cli-tools
 
-# --- Networking & Bluetooth ---
+# --- Jaringan & Bluetooth ---
 networkmanager
-networkmanager-openvpn
-networkmanager-pptp
-networkmanager-vpnc
-openresolv
+network-manager-applet
 bluez
 bluez-utils
-bluedevil
 rfkill
+openresolv
 
 # --- Audio ---
 pipewire
@@ -88,26 +81,19 @@ pipewire-pulse
 wireplumber
 alsa-utils
 pavucontrol
-helvum
 
-# --- Apps ---
+# --- Aplikasi ---
 firefox
 firefox-i18n-id
 libreoffice-still
 libreoffice-still-id
 vlc
-smplayer
 mpv
 gimp
 krita
 inkscape
 obs-studio
 handbrake
-shotwell
-digikam
-celluloid
-goldendict
-simple-scan
 neovim
 code
 git
@@ -115,121 +101,68 @@ curl
 wget
 htop
 btop
-neofetch
 fastfetch
 ncdu
-dust
-eza
-zoxide
 ripgrep
 fd
 fzf
+zoxide
+eza
+bat
 
-# --- Gaming (Garuda gaming ready) ---
+# --- Gaming ---
 steam
-steam-native-runtime
 lutris
 gamemode
 lib32-gamemode
 mangohud
+lib32-mangohud
 vulkan-icd-loader
 lib32-vulkan-icd-loader
 vulkan-radeon
 lib32-vulkan-radeon
 vulkan-intel
 lib32-vulkan-intel
-vulkan-mesa-implicit-layers
 mesa-utils
-mesa-utils-xs
-lib32-mesa-utils
-vkbasalt
 retroarch
-retroarch-assets
 libretro-core-info
-libretro-picodrive
-lib32-nvidia-utils
-nvidia-utils
-opencl-nvidia
-nvidia-settings
-libva-nvidia-driver
-libva-utils
-protontricks
 winetricks
-heroic-games-launcher-bin
-steam-tinker
 
 # --- Printer & Scanner ---
 cups
 cups-pk-helper
 system-config-printer
 sane
-xsane
 hplip
 
-# --- Filesystem & Utils ---
-fstrim
-smartmontools
-hdparm
-nvme-cli
-gparted
-kpmcore
-partitionmanager
-usbimager
-ventoy-bin
-snapd
-flatpak
-appmenu-launcher
-pacman-contrib
-pamac
-octopi
-
-# --- System utils ---
-openssh
-rsync
-tar
-unzip
-zip
-p7zip
-arch-install-scripts
-arch-cleanmgr
-reflector
-earlyoom
-systemd-oomd
-tuned
-power-profiles-daemon
-thermald
-ananicy-cpp
-preload
-nvidia-powerd
-upower
+# --- Filesystem & utilitas ---
+udisks2
 udiskie
 gvfs
 gvfs-mtp
 gvfs-gphoto2
-ntfsprogs
-cifs-utils
-nfs-utils
-cloud-utils-growpart
-cloud-init
-qemu-guest-agent
-spice-vdagent
-virtualbox-guest-utils-nox
+gparted
+partitionmanager
+flatpak
+earlyoom
+tuned
+power-profiles-daemon
+thermald
+upower
+smartmontools
+hdparm
+nvme-cli
 
-# --- Fonts ---
+# --- Fonta ---
 noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
-noto-icon-font
-inter-font
-fira-code-font
 ttf-jetbrains-mono
 ttf-fira-sans
 ttf-liberation
 cantarell-fonts
-otf-urw-base35
 
-# --- Dev ---
-base-devel
+# --- Pengembangan ---
 cmake
 gcc
 clang
@@ -249,12 +182,3 @@ ansible
 
 # --- Installer ---
 calamares
-calamares-config-mirrors
-boost-python
-
-# --- Plasmoids & Extra ---
-plasma5-applets-weather-widget
-kdeconnect-kde
-kimageannotator
-kcolorpicker
-hplip-qt

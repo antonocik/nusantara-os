@@ -1,14 +1,20 @@
-# NusantaraOS GNOME — varian bersih
+# Nusantara OS GNOME — varian bersih
 base
 sudo
 linux-zen
 linux-firmware
 systemd
+systemd-sysvcompat
+mkinitcpio
+plymouth
 grub
-refind
+efibootmgr
+dosfstools
+ntfs-3g
 btrfs-progs
 snapper
 timeshift
+arch-install-scripts
 gdm
 gnome
 gnome-tweaks
@@ -17,6 +23,7 @@ networkmanager
 pipewire
 pipewire-pulse
 wireplumber
+pavucontrol
 firefox
 libreoffice-still
 vlc
@@ -27,8 +34,10 @@ steam
 lutris
 gamemode
 mangohud
+vulkan-icd-loader
+lib32-vulkan-icd-loader
+mesa-utils
 calamares
 flatpak
-pamac
 noto-fonts
 noto-fonts-emoji

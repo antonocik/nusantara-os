@@ -1,14 +1,20 @@
-# NusantaraOS Sway — tiling minimal
+# Nusantara OS Sway — tiling minimal
 base
 sudo
 linux-zen
 linux-firmware
 systemd
+systemd-sysvcompat
+mkinitcpio
+plymouth
 grub
-refind
+efibootmgr
+dosfstools
+ntfs-3g
 btrfs-progs
 snapper
 timeshift
+arch-install-scripts
 sway
 swaylock
 swayidle
@@ -16,9 +22,11 @@ waybar
 wofi
 mako
 networkmanager
+network-manager-applet
 pipewire
 pipewire-pulse
 wireplumber
+pavucontrol
 firefox
 neovim
 code
@@ -27,6 +35,9 @@ steam
 lutris
 gamemode
 mangohud
+vulkan-icd-loader
+lib32-vulkan-icd-loader
+mesa-utils
 calamares
 alacritty
 kitty

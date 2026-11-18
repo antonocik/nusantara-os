@@ -1,0 +1,24 @@
+# Nusantara OS — paket AUR (OPSIONAL)
+#
+# Tidak dipakai saat build ISO. Pasang setelah install dengan:
+#   yay -S --needed $(grep -v '^#' packages.aur.x86_64 | xargs)
+#
+# atau pilih manual.
+
+# Optimasi sistem
+ananicy-cpp
+preload
+
+# Gaming tambahan
+vkbasalt
+protontricks
+heroic-games-launcher-bin
+
+# Tema & ikon
+sweet-kde-theme-git
+candy-icons-git
+
+# Aplikasi
+pamac-aur
+octopi
+ventoy-bin

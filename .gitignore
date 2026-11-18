@@ -1,6 +1,7 @@
 # Build artifacts
 work/
 out/
+build-profile/
 iso_build/
 *.iso
 *.img

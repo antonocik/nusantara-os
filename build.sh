@@ -1,57 +1,95 @@
 #!/usr/bin/env bash
+# Nusantara OS — build ISO (archiso)
+#
+# Usage:
+#   sudo ./build.sh [kde|xfce|gnome|sway]
+#   ./build.sh kde              # otomatis pakai sudo bila bukan root
+#   SKIP_PKG_CHECK=1 ./build.sh # lewati pengecekan paket
+#   CLEAN=1 ./build.sh kde      # hapus work/ dan out/ dulu
+#
+# Harus dijalankan di Arch Linux / Garuda / CachyOS / Manjaro
+# (atau container archlinux). Ubuntu/Debian tidak didukung.
+
 set -euo pipefail
 
-# NusantaraOS - build script (archiso)
-# Usage: sudo ./build.sh [kde|xfce|gnome|sway]
-
-PROFILE=${1:-kde}
-
-if [[ $EUID -ne 0 ]]; then
-  echo "Jalankan dengan sudo: sudo ./build.sh"
-  exit 1
-fi
-
-cd "$(dirname "$0")"
-
-# 1. Pilih profil
+PROFILE="${1:-kde}"
 case "$PROFILE" in
   kde|xfce|gnome|sway) ;;
+  -h|--help)
+    sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'
+    exit 0
+    ;;
   *)
-    echo "Profil tidak dikenal: $PROFILE (kde|xfce|gnome|sway)"
+    echo "Profil tidak dikenal: $PROFILE (pilihan: kde, xfce, gnome, sway)" >&2
     exit 1
     ;;
 esac
 
-echo "[NusantaraOS] Build profil: $PROFILE"
+cd "$(dirname "$0")"
 
-# Kalau ada folder profiles/<nama>, pakai itu, else pakai root profile (kde default)
-if [[ -d "profiles/$PROFILE" ]]; then
-  PROFILE_DIR="profiles/$PROFILE"
+# --- root / sudo ---
+if [[ $EUID -eq 0 ]]; then
+  SUDO=""
+elif command -v sudo >/dev/null 2>&1; then
+  SUDO="sudo"
+  sudo -v
 else
-  PROFILE_DIR="."
+  echo "Butuh root. Jalankan sebagai root atau pasang sudo." >&2
+  exit 1
 fi
 
-# 2. Bersihkan work lama jika diminta
-if [[ "${CLEAN:-0}" == "1" ]]; then
-  rm -rf work out
+# --- cek toolchain ---
+missing=()
+command -v mkarchiso   >/dev/null 2>&1 || missing+=("archiso")
+command -v mksquashfs  >/dev/null 2>&1 || missing+=("squashfs-tools")
+if (( ${#missing[@]} )); then
+  echo "Paket wajib belum ada: ${missing[*]}" >&2
+  echo "Pasang dulu:  sudo pacman -S --needed archiso squashfs-tools" >&2
+  exit 1
 fi
 
-# 3. Build ISO
-# archiso butuh profile dir yang berisi profiledef.sh, packages.x86_64, airootfs, dll
-# Kita siapkan symlink/copy ke work_dir sesuai standar mkarchiso
+[[ "${CLEAN:-0}" == "1" ]] && rm -rf work out build-profile
 mkdir -p out
 
-# Jika profil terpisah, salin file umum
-if [[ "$PROFILE_DIR" != "." ]]; then
-  echo "Menggunakan $PROFILE_DIR ..."
-  # packages & airootfs diambil dari profil spesifik jika ada
-  if [[ -f "$PROFILE_DIR/packages.x86_64" ]]; then cp -v "$PROFILE_DIR/packages.x86_64" ./packages.x86_64; fi
-  # airootfs di-merge (.overlay)
-  # (untuk simplicity, build langsung dari folder profil)
-  exec mkarchiso -v -w work -o out "$PROFILE_DIR"
+# --- susun profil gabungan ---
+DEST="build-profile"
+rm -rf "$DEST"
+mkdir -p "$DEST"
+
+cp -a airootfs "$DEST/airootfs"
+cp -a syslinux "$DEST/syslinux"
+[[ -d efiboot ]] && cp -a efiboot "$DEST/efiboot"
+[[ -d grub ]]    && cp -a grub    "$DEST/grub"
+cp profiledef.sh pacman.conf "$DEST/"
+
+# paket: varian menimpa daftar dasar
+if [[ -f "profiles/$PROFILE/packages.x86_64" ]]; then
+  cp "profiles/$PROFILE/packages.x86_64" "$DEST/packages.x86_64"
+  echo "[i] paket dari profiles/$PROFILE/packages.x86_64"
 else
-  exec mkarchiso -v -w work -o out .
+  cp packages.x86_64 "$DEST/packages.x86_64"
+  echo "[i] paket dari packages.x86_64 (default)"
 fi
 
-echo "Selesai. ISO di out/"
-ls -lh out/*.iso 2>/dev/null || true
+# overlay tambahan per-varian (opsional)
+if [[ -d "profiles/$PROFILE/airootfs" ]]; then
+  cp -a "profiles/$PROFILE/airootfs/." "$DEST/airootfs/"
+  echo "[i] overlay airootfs dari profiles/$PROFILE"
+fi
+
+# --- buang paket yang tidak ada di repo (biar build tidak gagal) ---
+if [[ "${SKIP_PKG_CHECK:-0}" != "1" ]] && command -v pacman >/dev/null 2>&1; then
+  if [[ -x scripts/filter-packages.sh ]]; then
+    echo "[i] cek ketersediaan paket..."
+    scripts/filter-packages.sh "$DEST/packages.x86_64" || \
+      echo "[!] pengecekan paket gagal, lanjut dengan daftar apa adanya"
+  fi
+fi
+
+# --- build ---
+echo "[i] mkarchiso mulai: profil=$PROFILE"
+mkarchiso -v -w work -o out "$DEST"
+
+echo
+echo "[✓] Selesai. Hasil:"
+ls -lh out/*.iso 2>/dev/null || echo "  (tidak ada .iso, cek log di atas)"

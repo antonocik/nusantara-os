@@ -1,24 +1,30 @@
-# NusantaraOS Xfce — varian ringan ala Garuda Xfce
+# Nusantara OS Xfce — varian ringan ala Garuda Xfce
 base
 sudo
 linux-zen
 linux-firmware
 systemd
+systemd-sysvcompat
+mkinitcpio
+plymouth
 grub
-refind
 efibootmgr
+dosfstools
+ntfs-3g
 btrfs-progs
 snapper
 timeshift
-plymouth
+arch-install-scripts
 xfce4
 xfce4-goodies
 lightdm
 lightdm-gtk-greeter
 networkmanager
+network-manager-applet
 pipewire
 pipewire-pulse
 wireplumber
+pavucontrol
 firefox
 libreoffice-still
 vlc
@@ -35,9 +41,6 @@ mesa-utils
 hplip
 cups
 flatpak
-pamac
-octopi
 calamares
 noto-fonts
 noto-fonts-emoji
-snapd
