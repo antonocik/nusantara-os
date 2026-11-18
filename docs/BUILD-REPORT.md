@@ -1,6 +1,6 @@
 # Status Proyek
 
-Terakhir diperbarui: 2026-11-18
+Terakhir diperbarui: 2026-11-18 (build CI pertama yang berhasil)
 
 ## Ringkasan
 
@@ -39,6 +39,21 @@ GitHub Actions (container Arch) atau lokal di Arch/Garuda.
 - Boot ISO hasil build: syslinux/UEFI, Plymouth, SDDM autologin
 - Install Calamares sampai selesai, termasuk subvolume BTRFS + Snapper
 - Tema SDDM/Plymouth tampil benar di layar
+
+## Build CI pertama yang berhasil
+
+Run [`44335794471`](https://github.com/antonocik/nusantara-os/actions/runs/44335794471)
+(commit `5d1db49`, 18 Nov 2026):
+
+| Item | Hasil |
+|---|---|
+| Waktu build | 14 menit 26 detik (termasuk Calamares 3.4.2 dari PKGBUILD lokal) |
+| ISO | `NusantaraOS-2026.11.18-x86_64.iso` — **4.5 GB** |
+| SHA256 | `939896cd5182749f4bd9a33b2e018eb3b5ce1495d628effe7cd9b468ebea92fd` |
+| Paket | `[filter] tersedia: 174 paket` (173 + `calamares`) |
+| Calamares | 48 modul terbangun, termasuk modul Python (`localecfg`, `unpackfs`, `displaymanager`, ...) |
+| Kernel live | `vmlinuz-linux-zen` + `initramfs-linux-zen.img` |
+| Kegagalan | Hanya langkah CI `Checksum`: `out/` milik root → `tee out/SHA256SUMS` permission denied. Sudah diperbaiki (`sudo chown -R`) |
 
 ## ISO preview
 

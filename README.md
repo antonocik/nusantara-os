@@ -91,7 +91,7 @@ sudo dd if=out/*.iso of=/dev/sdX bs=4M status=progress oflag=sync   # ganti sdX!
 Tiga hal berbeda, jangan tertukar:
 
 1. **ISO preview (rilis `v2026.11.07`)** — 18 MB, bootable, berisi kernel Arch + shell busybox. Dibuat di host Ubuntu tanpa `mkarchiso`, hanya untuk membuktikan boot chain berjalan.
-2. **ISO penuh** — KDE + 173 paket + Calamares, ±3–4 GB. Dibangun dengan `sudo ./build.sh kde` atau lewat GitHub Actions.
+2. **ISO penuh** — KDE + 173 paket + Calamares. Build CI pertama: **4.5 GB**, 14m26s (run [`44335794471`](../../actions/runs/44335794471)). Dibangun dengan `sudo ./build.sh kde` atau lewat GitHub Actions.
 3. **Live session** — setelah boot: SDDM autologin `nusantara` → Plasma; ikon **Install Nusantara OS** menjalankan Calamares (`pkexec calamares`) atau `archinstall` bila Calamares tidak ikut.
 
 ## Struktur repo

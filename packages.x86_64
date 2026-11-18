@@ -46,6 +46,7 @@ unzip
 zip
 less
 nano
+pv
 
 # --- Desktop KDE Plasma ---
 plasma-meta

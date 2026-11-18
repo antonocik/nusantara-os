@@ -3,7 +3,7 @@
 # Nusantara OS — profil archiso
 
 iso_name="NusantaraOS"
-iso_label="NUSANTARAOS_$(date +%Y%m)"
+iso_label="NUSANTARAOS_$(date +%y%m)"
 iso_application="Nusantara OS — Arch + KDE + BTRFS (Garuda-style)"
 iso_version="$(date +%Y.%m.%d)"
 iso_publisher="Nusantara OS Project <dev@nusantaraos.local>"

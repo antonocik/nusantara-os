@@ -72,12 +72,21 @@ jobs:
               echo "::group::build.sh $PROFILE"
               ./build.sh "$PROFILE"
               echo "::endgroup::"
+
+              echo "::group::Verifikasi isi ISO"
+              ISO="$(ls out/*.iso | head -n1)"
+              echo "ISO: $ISO ($(du -h "$ISO" | cut -f1))"
+              xorriso -indev "$ISO" -find /arch/x86_64 -type f -exec lsdl
+              xorriso -indev "$ISO" -find /arch/boot/x86_64 -type f -exec lsdl
+              xorriso -indev "$ISO" -find /arch/boot/syslinux -type f -exec lsdl
+              echo "::endgroup::"
             '
 
       - name: Checksum & ukuran
         run: |
+          sudo chown -R "$USER":"$USER" out
           ls -lh out/
-          sha256sum out/*.iso | tee out/SHA256SUMS
+          ( cd out && sha256sum ./*.iso | tee SHA256SUMS )
 
       - name: Simpan artefak
         uses: actions/upload-artifact@v4
